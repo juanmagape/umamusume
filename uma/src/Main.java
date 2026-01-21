@@ -94,7 +94,8 @@ public class Main {
             System.out.println("[1] - Entrenar");
             System.out.println("[2] - Descanso");
             System.out.println("[3] - Recreación");
-            System.out.println("[4] - Salir");
+            System.out.println("[4] - Curarse");
+            System.out.println("[5] - Salir");
             System.out.println("============================");
 
             int opcion = print.nextInt();
@@ -110,33 +111,54 @@ public class Main {
                     Recreation();
                     break;
                 case 4:
-                    System.out.println("\nSaliendo del programa...");
-                    seguirJugando = false;
+                    if (!practicePoor) {
+                        System.out.println("No necesitas ir a la enfermería.");
+                        break;
+                    }
+                    curarse();
                     break;
+                case 5:
+                    System.out.println("Saliendo del programa...");
+                    System.exit(0);
             }
         }
     }
 
     public static void entrenar() {
 
-        int baseGanancias = randomEntrenar();
         int baseFailRate = 0;
         if (energia < 50) {
             baseFailRate = (50 - energia) * 2;
         }
 
+        if (practicePoor) {
+            baseFailRate += 15;
+            System.out.println("[!] Tienes Practice Poor: El riesgo de fallo ha aumentado.");
+        }
+
+        if (practicePerfect) {
+            baseFailRate -= 5;
+            if (baseFailRate < 0) baseFailRate = 0;
+            System.out.println("[!] Tienes Practice Perfect: El riesgo ha disminuido y ganas más stats.");
+        }
+
         int[] ganancias = new int[5];
         int[] perdidasEnergia = new int[5];
         int[] porcentajeFallo = new int[5];
-
         String[] nombresStats = {"Speed", "Stamina", "Power", "Guts", "Wit"};
 
         for (int i = 0; i < 5; i++) {
-            ganancias[i] = randomEntrenar();
+            int statBase = randomEntrenar();
+
+            if (practicePerfect) {
+                statBase += 5;
+            }
+
+            ganancias[i] = statBase;
 
             if (i == 4) {
-                porcentajeFallo[i] = baseFailRate / 4;
-                ganancias[i] = baseGanancias / 2;
+                porcentajeFallo[i] = Math.max(0, baseFailRate / 4);
+                ganancias[i] = ganancias[i] / 2;
                 perdidasEnergia[i] = 0;
             } else {
                 porcentajeFallo[i] = baseFailRate;
@@ -144,8 +166,7 @@ public class Main {
             }
         }
 
-        System.out.println("\n=== Entrenar (Energía actual: " + energia + ") ===");
-
+        System.out.println("\n=== Entrenar (Energía: " + energia + " | Mood: " + mood + ") ===");
         for (int i = 0; i < 5; i++) {
             System.out.println((i + 1) + ". " + nombresStats[i] + " | +" + ganancias[i] + " stat" + " | -" + perdidasEnergia[i] + " Ene" + " | Riesgo: " + porcentajeFallo[i] + "%");
         }
@@ -160,19 +181,19 @@ public class Main {
 
             if (suerte < porcentajeFallo[indice]) {
                 System.out.println("El entrenamiento falló! " + nombresStats[indice] + " no subió.");
-                energia -= 5;
-                mood -= 20;
+                falloEntrenar();
             } else {
                 int statGanado = ganancias[indice];
                 int energiaPerdida = perdidasEnergia[indice];
 
-                System.out.println("Ganaste " + statGanado + " puntos en " + nombresStats[indice]);
+                System.out.println("Éxito! Ganaste " + statGanado + " puntos en " + nombresStats[indice]);
 
                 if(energiaPerdida > 0) {
                     System.out.println("Perdiste " + energiaPerdida + " de energía.");
                     energia -= energiaPerdida;
                 } else {
-                    System.out.println("No perdiste energía por entrenar Wit");
+                    System.out.println("No perdiste energía (Wit).");
+                    energia += 5;
                 }
 
                 switch (indice) {
@@ -190,8 +211,6 @@ public class Main {
     public static int randomEntrenar() {
         return new Random().nextInt(10, 30);
     }
-
-
 
     public static int randomEnergiaPerder() {
         return new Random().nextInt(20, 40);
@@ -213,6 +232,10 @@ public class Main {
                 } else {
                     mood = mood - 20;
                     speed = speed - 5;
+                    power = power - 5;
+                    guts = guts -5;
+                    wit = wit - 5;
+                    stamina = stamina -5;
                 }
                 break;
             case 2:
@@ -220,15 +243,26 @@ public class Main {
                 if (accion2 == 1){
                     mood = mood - 20;
                     speed = speed - 5;
+                    power = power - 5;
+                    guts = guts -5;
+                    wit = wit - 5;
+                    stamina = stamina -5;
                 } else if (accion2 == 2) {
                     System.out.println("Has adquirido: Practice Poor");
                     mood = mood - 20;
                     speed = speed - 5;
+                    power = power - 5;
+                    guts = guts -5;
+                    wit = wit - 5;
+                    stamina = stamina -5;
+                    practicePoor = true;
                 } else {
                     System.out.println("Has adquirido: Practice Perfect");
+                    practicePerfect = true;
                 }
                 break;
             case 3:
+                System.out.println();
                 break;
             default:
                 System.out.println("Opción no válida");
@@ -315,7 +349,21 @@ public class Main {
             }
 
         }
-    }
 
+        public static void curarse() {
+            int suerte = new Random().nextInt(100);
+            if (suerte < 80) {
+                System.out.println(nombreUma + " se ha curado exitosamente!");
+                practicePoor = false;
+                energia += 30;
+                System.out.println("Energia +30");
+            } else {
+                System.out.println(nombreUma + " no se ha curado.");
+                energia += 10;
+                System.out.println("Energia +10");
+            }
+
+    }
+}
 
 

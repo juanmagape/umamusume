@@ -11,6 +11,7 @@ public class Main {
     public static int wit = new Random().nextInt(90, 101);
     public static boolean practicePerfect = false;
     public static boolean practicePoor = false;
+    public static boolean nightOwl = false;
     public static Scanner print = new Scanner(System.in);
 
     public static String[] umas = {"Mambo", "Special Week", "Silence Suzuka", "Tokai Teio", "Oguri Cap", "Gold Ship", "Vodka", "El Condor Pasa", "Daitaku Helios", "Haru Urara", "Agnes Tachyon", "T.M Opera O"};
@@ -20,8 +21,22 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
 
         boolean seguirJugando = true;
+        int contadorTurnos = 0;
 
         while (seguirJugando) {
+            contadorTurnos++;
+
+            if (nightOwl) {
+                int nightRandom = new Random().nextInt(1, 101);
+
+                if (nightRandom > 50) {
+                    speed -=(int) (speed * 0.10);
+                    stamina -= (int)(stamina * 0.10);
+                    power -=(int) (power * 0.10);
+                    guts -=(int) (guts * 0.10);
+                    wit -=(int) (wit * 0.10);
+                }
+            }
 
             if (mood < 0) { mood = 0; }
             if (mood > 100) { mood = 100; }
@@ -29,8 +44,43 @@ public class Main {
             if (energia < 0) { energia = 0; }
             if (energia > 100) { energia = 100; }
 
+            if (contadorTurnos == 10 || contadorTurnos == 15 || contadorTurnos == 30 || contadorTurnos == 48) {
+                
+            }
+
+            System.out.println("Turno actual: " + contadorTurnos);
+
+
+            if (contadorTurnos < 10) {
+                int falta = 10 - contadorTurnos;
+                System.out.println("Faltan " + falta + " turnos para el Debut Race");
+
+            } else if (contadorTurnos == 10) {
+                System.out.println("¡HOY ES EL DEBUT RACE!");
+
+            } else if (contadorTurnos < 15) {
+                int falta = 15 - contadorTurnos;
+                System.out.println("Faltan " + falta + " turnos para la Junior Cup");
+
+            } else if (contadorTurnos == 15) {
+                System.out.println("¡HOY ES LA JUNIOR CUP!");
+
+            } else if (contadorTurnos < 30) {
+                int falta = 30 - contadorTurnos;
+                System.out.println("Faltan " + falta + " turnos para la Classic Race");
+
+            } else if (contadorTurnos == 30) {
+                System.out.println("¡HOY ES LA CLASSIC RACE!");
+
+            } else if (contadorTurnos < 48) {
+                int falta = 48 - contadorTurnos;
+                System.out.println("Faltan " + falta + " turnos para la URA Finals.");
+            } else if (contadorTurnos == 48) {
+                System.out.println("¡HOY ES LA FINAL URA!");
+            }
+
             System.out.println("============================");
-            System.out.println(nombreUma + " | Energia: " + energia + " | Mood: " + Mood());
+            System.out.println(nombreUma + " | Energia: " + energia + " | Mood: " + nombreMood());
             System.out.println("============================");
             System.out.println("Estadísticas de tu UMA actuales: ");
             System.out.println("Speed: " + speed);
@@ -54,6 +104,7 @@ public class Main {
                     entrenar();
                     break;
                 case 2:
+                    Descanso();
                     break;
                 case 3:
                     Recreation();
@@ -183,91 +234,88 @@ public class Main {
                 System.out.println("Opción no válida");
                 falloEntrenar();
                 break;
+            }
         }
-    }
 
-    public static String Mood() {
-
-        if (mood < 20) {
-            speed -=(int) (speed * 0.10);
-            stamina -= (int)(stamina * 0.10);
-            power -=(int) (power * 0.10);
-            guts -=(int) (guts * 0.10);
-            wit -=(int) (wit * 0.10);
-
-            return  "Awful";
-        } else if (mood >= 20 && mood <= 39) {
-
-            speed -=(int) (speed * 0.05);
-            stamina -= (int)(stamina * 0.05);
-            power -=(int) (power * 0.05);
-            guts -=(int) (guts * 0.05);
-            wit -=(int) (wit * 0.05);
-
-            return "Bad";
-        } else if (mood >= 40 && mood <= 59) {
-            return "Normal";
-        } else if (mood >= 60 && mood <= 79) {
-
-            speed +=(int) (speed * 0.02);
-            stamina +=(int) (stamina * 0.02);
-            power +=(int) (power * 0.02);
-            guts +=(int) (guts * 0.02);
-            wit += (int) (wit * 0.02);
-
-            return "Good";
-        } else if (mood >= 80 && mood <= 100) {
-
-            speed += (int) (speed * 0.04);
-            stamina +=(int) (stamina * 0.04);
-            power +=(int) (power * 0.04);
-            guts +=(int) (guts * 0.04);
-            wit +=(int) (wit * 0.04);
-
+        public static String nombreMood() {
+            if (mood < 20) return "Awful";
+            if (mood < 40) return "Bad";
+            if (mood < 60) return "Normal";
+            if (mood < 80) return "Good";
             return "Great";
         }
-        return "Unkown";
-    }
 
-    public static void Recreation() {
-        int recreacion = new Random().nextInt(1, 4);
-        int posibilidadSubStats =  new Random().nextInt(1, 100);
+        public static double multiplicadorMood() {
+            if (mood < 20) return 0.90; 
+            if (mood < 40) return 0.95; 
+            if (mood < 60) return 1.00; 
+            if (mood < 80) return 1.02; 
+            return 1.04;
+        }
 
-        switch (recreacion) {
-            case 1:
-                System.out.println("Paseo al parque");
-                mood += mood + 20;
-                System.out.println("El mood a subido a " + Mood());
-                break;
-            case 2:
-                System.out.println("Salida al Karaoke");
-                mood += mood + 25;
-                System.out.println("El mood a subido a " + Mood());
-                if (posibilidadSubStats < 50) {
-                    energia += energia + 10;
-                    System.out.println("Energia + 10");
-                }
-                break;
-            case 3:
-                System.out.println("Visita a la pastelería");
-                mood += mood + 30;
-                System.out.println("El mood a subido a " + Mood());
+        public static void Recreation() {
+            int recreacion = new Random().nextInt(1, 4);
+            int posibilidadSubStats =  new Random().nextInt(1, 100);
 
-                if (posibilidadSubStats < 50) {
-                    energia += energia + 20;
-                    System.out.println("Energia + 20");
-                }
+            switch (recreacion) {
+                case 1:
+                    System.out.println("Paseo al parque");
+                    mood += mood + 20;
+                    System.out.println("El mood a subido a " + multiplicadorMood());
+                    break;
+                case 2:
+                    System.out.println("Salida al Karaoke");
+                    mood += mood + 25;
+                    System.out.println("El mood a subido a " + multiplicadorMood());
+                    if (posibilidadSubStats < 50) {
+                        energia += energia + 10;
+                        System.out.println("Energia + 10");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Visita a la pastelería");
+                    mood += mood + 30;
+                    System.out.println("El mood a subido a " + multiplicadorMood());
 
-                break;
-            case 4:
-                System.out.println("Evento de recreación");
-                mood += mood + 50;
-                energia += energia + 30;
-                System.out.println("El mood a subido a " + Mood());
-                System.out.println("Energia + 30");
-                break;
+                    if (posibilidadSubStats < 50) {
+                        energia += energia + 20;
+                        System.out.println("Energia + 20");
+                    }
+
+                    break;
+                case 4:
+                    System.out.println("Evento de recreación");
+                    mood += mood + 50;
+                    energia += energia + 30;
+                    System.out.println("El mood a subido a " + multiplicadorMood());
+                    System.out.println("Energia + 30");
+                    break;
+            }
+        }
+
+        public static void Descanso() {
+
+            int suerteDescanso = new Random().nextInt(1, 101);
+
+            if (suerteDescanso <= 15) { 
+                nightOwl = true;
+                System.out.println("Has tenido un mal descanso. (Estado: Night Owl)");
+
+            } else if (suerteDescanso <= 40) { 
+                energia += 25;
+                System.out.println("Descanso ligero. Energía actual: " + energia);
+
+            } else if (suerteDescanso <= 85) { 
+                energia += 45;
+                System.out.println("Has descansado bien. Energía actual: " + energia);
+
+            } else { 
+                energia += 70;
+                System.out.println("¡Descanso perfecto! Energía actual: " + energia);
+            }
+
         }
     }
-}
+
 
 

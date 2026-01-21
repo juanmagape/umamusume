@@ -1,6 +1,14 @@
 import java.util.Scanner;
+import java.util.Random;
 
 public class Main {
+    public static int mood = 50;
+    public static int energia = 100;
+    public static int speed = new Random().nextInt(90, 101);
+    public static int stamina = new Random().nextInt(90, 101);
+    public static int power = new Random().nextInt(90, 101);
+    public static int guts = new Random().nextInt(90, 101);
+    public static int wit = new Random().nextInt(90, 101);
 
     public static void main(String[] args) throws InterruptedException {
 

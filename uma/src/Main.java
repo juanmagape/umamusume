@@ -1,7 +1,9 @@
 import java.util.Random;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
-public class tests {
+public class Main {
+    // === ESTADÍSTICAS PRINCIPALES ===
     public static int mood = 50;
     public static int energia = 100;
     public static int speed = new Random().nextInt(90, 101);
@@ -9,94 +11,120 @@ public class tests {
     public static int power = new Random().nextInt(90, 101);
     public static int guts = new Random().nextInt(90, 101);
     public static int wit = new Random().nextInt(90, 101);
+
+    // === ESTADOS/CONDICIONES ===
     public static boolean practicePerfect = false;
     public static boolean practicePoor = false;
     public static boolean nightOwl = false;
     public static Scanner print = new Scanner(System.in);
 
+    // === DATOS DE LA UMA ===
     public static String[] umas = {"Mambo", "Special Week", "Silence Suzuka", "Tokai Teio", "Oguri Cap", "Gold Ship", "Vodka", "El Condor Pasa", "Daitaku Helios", "Haru Urara", "Agnes Tachyon", "T.M Opera O"};
     public static int seleccionUma = new Random().nextInt(0, 12);
     public static String nombreUma = umas[seleccionUma];
 
+    // === SISTEMA DE SUPPORT CARDS ===
+    // Cada support aumenta las ganancias de entrenamiento y la amistad desbloquea bonos especiales
     public static String[] supportNombres = new String[6];
-    public static int[] supportTipos = new int[6];
-    public static int[] supportFriendship = new int[6];
+    public static int[] supportTipos = new int[6]; // 0=Speed, 1=Stamina, 2=Power, 3=Guts, 4=Wit
+    public static int[] supportFriendship = new int[6]; // A 80+ se desbloquea Friendship Training
 
+    /**
+     * Método principal que ejecuta el bucle de juego.
+     * Gestiona el flujo de turnos, eventos aleatorios, carreras programadas y el menú principal.
+     *
+     * @throws InterruptedException si hay problemas con Thread.sleep durante las carreras
+     */
     public static void main(String[] args) throws InterruptedException {
 
         inicializarSupports();
+        Thread.sleep(1000); // Pausa tras seleccionar supports
 
         boolean seguirJugando = true;
         int contadorTurnos = 0;
 
+        // Bucle principal del juego
         while (seguirJugando) {
             contadorTurnos++;
+            System.out.println("\n------------------------------------------------"); // Separador visual de turnos
+
+            // 33% de probabilidad de evento aleatorio cada turno
             int eventoRandom = new Random().nextInt(1, 101);
             if (eventoRandom >= 66) evento();
 
+            // Penalización por insomnio: 50% de probabilidad de perder 10% de stats
             if (nightOwl) {
                 int nightRandom = new Random().nextInt(1, 101);
-
                 if (nightRandom > 50) {
+                    System.out.println("[!] El insomnio te ha quitado energía y stats...");
                     speed -= (int) (speed * 0.10);
                     stamina -= (int) (stamina * 0.10);
                     power -= (int) (power * 0.10);
                     guts -= (int) (guts * 0.10);
                     wit -= (int) (wit * 0.10);
+                    Thread.sleep(1500);
                 }
             }
 
-            if (mood < 0) {
-                mood = 0;
-            }
-            if (mood > 100) {
-                mood = 100;
-            }
-
-            if (energia < 0) {
-                energia = 0;
-            }
-            if (energia > 100) {
-                energia = 100;
-            }
-
+            // Limitar valores entre 0 y 100
+            mood = Math.max(0, Math.min(100, mood));
+            energia = Math.max(0, Math.min(100, energia));
 
             System.out.println("Turno actual: " + contadorTurnos);
+            Thread.sleep(500); // Pequeña pausa para leer el turno
 
+            // Eventos de carrera
             if (contadorTurnos < 10) {
                 int falta = 10 - contadorTurnos;
                 System.out.println("Faltan " + falta + " turnos para el Debut Race");
-                continue;
             } else if (contadorTurnos == 10) {
                 System.out.println("¡HOY ES EL DEBUT RACE!");
-                carrera("Debut Race", 110, 100, 100, 90, 90); // Objetivos: speed, stamina, power, guts, wit
+                Thread.sleep(1000);
+                carrera("Debut Race", 150, 120, 120, 100, 100);
                 continue;
             } else if (contadorTurnos < 15) {
                 int falta = 15 - contadorTurnos;
                 System.out.println("Faltan " + falta + " turnos para la Junior Cup");
-                continue;
             } else if (contadorTurnos == 15) {
                 System.out.println("¡HOY ES LA JUNIOR CUP!");
-                carrera("Junior Cup", 140, 130, 130, 120, 110);
+                Thread.sleep(1000);
+                carrera("Junior Cup", 260, 200, 200, 150, 150);
                 continue;
             } else if (contadorTurnos < 30) {
                 int falta = 30 - contadorTurnos;
                 System.out.println("Faltan " + falta + " turnos para la Classic Race");
-                continue;
             } else if (contadorTurnos == 30) {
                 System.out.println("¡HOY ES LA CLASSIC RACE!");
-                carrera("Classic Race", 180, 170, 170, 160, 150);
+                Thread.sleep(1000);
+                carrera("Classic Race", 450, 350, 350, 300, 300);
                 continue;
             } else if (contadorTurnos < 48) {
                 int falta = 48 - contadorTurnos;
-                System.out.println("Faltan " + falta + " turnos para la URA Finals.");
+                System.out.println("Faltan " + falta + " turnos para la URA Finale.");
             } else if (contadorTurnos == 48) {
                 System.out.println("¡HOY ES LA URA FINALE!");
-                carrera("URA Finale", 220, 210, 210, 200, 190);
-                continue;
+                Thread.sleep(1000);
+                carrera("URA Finale", 700, 550, 550, 450, 450);
+                Thread.sleep(1000);
+                System.out.println("Has completado el juego! Felicidades.");
 
+                // Mosrtrar estado de final de la Uma
+                System.out.println("\n============================");
+                System.out.println("         RESULTADOS         ");
+                System.out.println("============================");
+                System.out.println(nombreUma + " | Energia: " + energia + " | Mood: " + nombreMood());
+                System.out.println("============================");
+                System.out.println("Estadísticas de tu UMA actuales: ");
+                System.out.println("Speed: " + speed);
+                System.out.println("Stamina: " + stamina);
+                System.out.println("Power: " + power);
+                System.out.println("Guts: " + guts);
+                System.out.println("Wit: " + wit);
+                System.out.println("============================");
+                System.exit(0);
             }
 
+            // Mostrar estado actual de la Uma
             System.out.println("============================");
             System.out.println(nombreUma + " | Energia: " + energia + " | Mood: " + nombreMood());
             System.out.println("============================");
@@ -108,6 +136,9 @@ public class tests {
             System.out.println("Wit: " + wit);
             System.out.println("============================");
 
+            Thread.sleep(1000); // Pausa para leer las estadísticas antes de que salga el menú
+
+            // Menú principal de acciones
             System.out.println("============================");
             System.out.println("[1] - Entrenar");
             System.out.println("[2] - Descanso");
@@ -117,35 +148,60 @@ public class tests {
             System.out.println("[6] - Salir");
             System.out.println("============================");
 
-            int opcion = print.nextInt();
+            // Try-catch para manejar entrada inválida del usuario
+            int opcion = 0;
+            try {
+                opcion = print.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Debes introducir un número válido.");
+                print.nextLine();
+                continue;
+            }
 
+            // Añadimos pausas tras las acciones para leer qué ha pasado
             switch (opcion) {
                 case 1:
                     entrenar();
+                    Thread.sleep(1500);
                     break;
                 case 2:
                     Descanso();
+                    Thread.sleep(1500);
                     break;
                 case 3:
                     Recreation();
+                    Thread.sleep(1500);
                     break;
                 case 4:
                     if (!practicePoor && !nightOwl) {
                         System.out.println("No necesitas ir a la enfermería.");
+                        contadorTurnos--;
+                        Thread.sleep(1000);
                         break;
                     }
                     curarse();
+                    Thread.sleep(1500);
                     break;
                 case 5:
                     verSupports();
+                    contadorTurnos--; // Ver supports no gasta turno
+                    Thread.sleep(2000); // Pausa larga para leer la lista
                     break;
                 case 6:
                     System.out.println("Saliendo del programa...");
                     System.exit(0);
+                default:
+                    System.out.println("Opción no válida. Elige entre 1-6.");
+                    Thread.sleep(1000);
             }
         }
     }
 
+    /**
+     * Inicializa las 6 cartas de soporte al inicio del juego.
+     * El jugador elige el tipo de cada support (Speed, Stamina, Power, Guts, Wit).
+     * Los supports aparecen en entrenamientos y otorgan bonos.
+     */
     public static void inicializarSupports() {
         System.out.println("\n=== SELECCIÓN DE SUPPORTS ===");
         System.out.println("Selecciona 6 support cards\n");
@@ -157,8 +213,17 @@ public class tests {
             System.out.println("1. Speed | 2. Stamina | 3. Power | 4. Guts | 5. Wit");
             System.out.print("Elige tipo: ");
 
-            int tipo = print.nextInt() - 1;
-            if (tipo < 0 || tipo > 4) {
+            // Try-catch para validar entrada del tipo de support
+            int tipo = 0;
+            try {
+                tipo = print.nextInt() - 1;
+                if (tipo < 0 || tipo > 4) {
+                    System.out.println("Tipo inválido, se asignará Speed por defecto.");
+                    tipo = 0;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Entrada inválida. Se asignará Speed por defecto.");
+                print.nextLine();
                 tipo = 0;
             }
 
@@ -172,6 +237,10 @@ public class tests {
         System.out.println("Supports listos!\n");
     }
 
+    /**
+     * Muestra la lista de supports con sus niveles de amistad.
+     * Indica cuáles tienen Friendship Training (FT) disponible (80+ amistad).
+     */
     public static void verSupports() {
         System.out.println("\n=== TUS SUPPORTS ===");
 
@@ -187,14 +256,21 @@ public class tests {
         System.out.println("====================\n");
     }
 
-    public static void entrenar() {
+    /**
+     * Sistema principal de entrenamiento.
+     * Calcula las ganancias de stats, riesgo de fallo y supports presentes en cada tipo de entrenamiento.
+     * Los supports aumentan las ganancias y la amistad. El Friendship Training otorga bonos especiales.
+     */
+    public static void entrenar() throws InterruptedException {
         Random rand = new Random();
 
+        // Calcular tasa de fallo base según energía baja
         int baseFailRate = 0;
         if (energia < 50) {
             baseFailRate = (50 - energia) * 2;
         }
 
+        // Modificadores de condición
         if (practicePoor) {
             baseFailRate += 15;
             System.out.println("[!] Tienes Practice Poor: El riesgo de fallo ha aumentado.");
@@ -214,11 +290,13 @@ public class tests {
 
         String[] nombresStats = {"Speed", "Stamina", "Power", "Guts", "Wit"};
 
+        // Determinar qué supports aparecen en cada tipo de entrenamiento
         for (int tipo = 0; tipo < 5; tipo++) {
             supportsEnEntrenamiento[tipo] = 0;
             tieneFT[tipo] = false;
 
             for (int s = 0; s < 6; s++) {
+                // Probabilidad base 40%, 60% si coincide el tipo, 85% si hay FT
                 int probabilidad = 40;
 
                 if (supportTipos[s] == tipo) {
@@ -236,6 +314,7 @@ public class tests {
             }
         }
 
+        // Calcular ganancias, costos y riesgos de cada entrenamiento
         for (int i = 0; i < 5; i++) {
             int statBase = randomEntrenar();
             int energiaBase = randomEnergiaPerder();
@@ -253,6 +332,7 @@ public class tests {
 
             ganancias[i] = statBase;
 
+            // Wit tiene reglas especiales: menos riesgo, menos ganancia, regenera energía
             if (i == 4) {
                 porcentajeFallo[i] = Math.max(0, baseFailRate / 4);
                 ganancias[i] = ganancias[i] / 2;
@@ -263,6 +343,7 @@ public class tests {
             }
         }
 
+        // Mostrar opciones de entrenamiento
         System.out.println("\n=== Entrenar (Energía: " + energia + " | Mood: " + mood + ") ===");
         for (int i = 0; i < 5; i++) {
             String extra = "";
@@ -279,13 +360,27 @@ public class tests {
         }
 
         System.out.print("\nElige (1-5): ");
-        int opcion = print.nextInt();
+
+        // Try-catch para manejar entrada inválida
+        int opcion = 0;
+        try {
+            opcion = print.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Error: Debes introducir un número entre 1 y 5.");
+            print.nextLine();
+            return;
+        }
+
         int indice = opcion - 1;
 
         if (indice >= 0 && indice < 5) {
 
+            System.out.println("Entrenando...");
+            Thread.sleep(800); // Pausa de "Entrenando"
+
             int suerte = rand.nextInt(100);
 
+            // Determinar si el entrenamiento falla
             if (suerte < porcentajeFallo[indice]) {
                 System.out.println("¡Fallo! " + nombresStats[indice] + " no subió.");
                 falloEntrenar();
@@ -295,6 +390,7 @@ public class tests {
 
                 System.out.println("¡Éxito! +" + statGanado + " " + nombresStats[indice]);
 
+                // Wit regenera energía en vez de consumirla
                 if (energiaPerdida > 0) {
                     System.out.println("-" + energiaPerdida + " energía");
                     energia -= energiaPerdida;
@@ -303,6 +399,7 @@ public class tests {
                     energia += 5;
                 }
 
+                // Aplicar ganancia a la stat correspondiente
                 switch (indice) {
                     case 0:
                         speed += statGanado;
@@ -321,6 +418,7 @@ public class tests {
                         break;
                 }
 
+                // Incrementar amistad con todos los supports presentes
                 if (supportsEnEntrenamiento[indice] > 0) {
                     System.out.println();
                     for (int s = 0; s < 6; s++) {
@@ -351,24 +449,50 @@ public class tests {
         }
     }
 
+    /**
+     * Genera un valor aleatorio de ganancia de stats base para entrenamientos.
+     *
+     * @return valor entre 10 y 29 (inclusive)
+     */
     public static int randomEntrenar() {
         return new Random().nextInt(10, 30);
     }
 
+    /**
+     * Genera un valor aleatorio de pérdida de energía para entrenamientos.
+     *
+     * @return valor entre 20 y 39 (inclusive)
+     */
     public static int randomEnergiaPerder() {
         return new Random().nextInt(20, 40);
     }
 
-    public static void falloEntrenar() {
+    /**
+     * Maneja las consecuencias de un fallo en el entrenamiento.
+     * El jugador elige entre descansar o continuar, con diferentes riesgos y resultados.
+     * Puede resultar en debuffs (Practice Poor) o buffs (Practice Perfect).
+     */
+    public static void falloEntrenar() throws InterruptedException {
 
         System.out.println("=== Enfermería ===");
         System.out.println("1. Descansa hasta que te encuentres mejor");
         System.out.println("2. Esto no es nada, sigamos entrenando!");
         System.out.println("3. Ver efectos");
-        int opc = print.nextInt();
+
+        // Try-catch para manejar entrada inválida
+        int opc = 0;
+        try {
+            opc = print.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida. Se repetirá la selección.");
+            print.nextLine();
+            falloEntrenar();
+            return;
+        }
 
         switch (opc) {
             case 1:
+                // Descansar: Baja mood, posible pérdida de stats
                 int accion = new Random().nextInt(2);
                 if (accion == 1) {
                     mood = mood - 20;
@@ -382,6 +506,7 @@ public class tests {
                 }
                 break;
             case 2:
+                // Continuar entrenando: Mayor riesgo, posibles debuffs o buffs
                 int accion2 = new Random().nextInt(3);
                 if (accion2 == 1) {
                     mood = mood - 20;
@@ -415,6 +540,11 @@ public class tests {
         }
     }
 
+    /**
+     * Convierte el valor numérico de mood en una descripción textual.
+     *
+     * @return String representando el estado de ánimo ("Awful", "Bad", "Normal", "Good", "Great")
+     */
     public static String nombreMood() {
         if (mood < 20) return "Awful";
         if (mood < 40) return "Bad";
@@ -423,6 +553,12 @@ public class tests {
         return "Great";
     }
 
+    /**
+     * Calcula el multiplicador de stats basado en el mood actual.
+     * No se usa actualmente en el código pero está disponible para futuras implementaciones.
+     *
+     * @return multiplicador entre 0.90 y 1.04
+     */
     public static double multiplicadorMood() {
         if (mood < 20) return 0.90;
         if (mood < 40) return 0.95;
@@ -431,6 +567,10 @@ public class tests {
         return 1.04;
     }
 
+    /**
+     * Realiza una actividad de recreación aleatoria que mejora el mood.
+     * Algunas actividades también pueden recuperar energía.
+     */
     public static void Recreation() {
         int recreacion = new Random().nextInt(1, 5);
         int posibilidadSubStats = new Random().nextInt(1, 100);
@@ -471,15 +611,22 @@ public class tests {
         }
     }
 
+    /**
+     * Permite al Uma descansar para recuperar energía.
+     * Tiene tres resultados posibles: mal descanso (25 energía), descanso normal (45 energía),
+     * o descanso perfecto (70 energía). El mal descanso puede causar insomnio.
+     */
     public static void Descanso() {
 
         int suerteDescanso = new Random().nextInt(1, 101);
 
         if (suerteDescanso <= 33) {
+            // Mal descanso
             System.out.println(nombreUma + " ha tenido un mal descanso...");
             energia += 25;
             System.out.println("Energía actual: " + energia);
 
+            // 20% de probabilidad de adquirir insomnio
             int suerteNightOwl = new Random().nextInt(1, 101);
 
             if (suerteNightOwl < 20) {
@@ -488,10 +635,12 @@ public class tests {
             }
 
         } else if (suerteDescanso <= 66) {
+            // Descanso normal
             energia += 45;
             System.out.println(nombreUma + " ha descansado bien. Energía actual: " + energia);
 
         } else {
+            // Descanso perfecto
             energia += 70;
             System.out.println("¡Descanso perfecto! Energía actual: " + energia);
 
@@ -499,6 +648,11 @@ public class tests {
 
     }
 
+    /**
+     * Intenta curar las condiciones negativas (Practice Poor e insomnio).
+     * 80% de probabilidad de éxito que cura todas las condiciones y recupera 30 energía.
+     * 20% de probabilidad de fallo que solo recupera 10 energía.
+     */
     public static void curarse() {
         int suerte = new Random().nextInt(100);
         if (suerte < 80) {
@@ -515,11 +669,26 @@ public class tests {
 
     }
 
+    /**
+     * Ejecuta una carrera con objetivos de stats específicos.
+     * Calcula la probabilidad de victoria basada en las stats de la Uma comparadas con los objetivos.
+     * El mood afecta las stats efectivas durante la carrera.
+     * Si se pierde, el juego termina mostrando las estadísticas finales.
+     *
+     * @param nombreCarrera nombre de la carrera
+     * @param speedObj objetivo de speed para la carrera
+     * @param staminaObj objetivo de stamina para la carrera
+     * @param powerObj objetivo de power para la carrera
+     * @param gutsObj objetivo de guts para la carrera
+     * @param witObj objetivo de wit para la carrera
+     * @throws InterruptedException si hay problemas con Thread.sleep
+     */
     public static void carrera(String nombreCarrera, int speedObj, int staminaObj, int powerObj, int gutsObj, int witObj) throws InterruptedException {
         System.out.println("\n========================================");
         System.out.println("       " + nombreCarrera);
         System.out.println("========================================");
 
+        // Aplicar bonos/penalizaciones de mood a las stats
         int speedCarrera = speed;
         int staminaCarrera = stamina;
         int powerCarrera = power;
@@ -556,14 +725,17 @@ public class tests {
             System.out.println("[Mood Awful: Todas las stats -10]");
         }
 
+        // Calcular probabilidad de victoria (base 50%)
         int porcentajeVictoria = 50;
 
+        // +10% por cada stat que cumple el objetivo
         if (speedCarrera >= speedObj) porcentajeVictoria += 10;
         if (staminaCarrera >= staminaObj) porcentajeVictoria += 10;
         if (powerCarrera >= powerObj) porcentajeVictoria += 10;
         if (gutsCarrera >= gutsObj) porcentajeVictoria += 10;
         if (witCarrera >= witObj) porcentajeVictoria += 10;
 
+        // -10% por cada stat que está por debajo del 80% del objetivo
         if (speedCarrera < speedObj * 0.8) porcentajeVictoria -= 10;
         if (staminaCarrera < staminaObj * 0.8) porcentajeVictoria -= 10;
         if (powerCarrera < powerObj * 0.8) porcentajeVictoria -= 10;
@@ -579,6 +751,7 @@ public class tests {
         int resultado = rand.nextInt(100);
 
         if (resultado < porcentajeVictoria) {
+            // Victoria
             System.out.println("VICTORIA!");
             System.out.println(nombreUma + " ha ganado la " + nombreCarrera + "!");
             mood += 20;
@@ -587,6 +760,7 @@ public class tests {
             System.out.println("• Mood +20");
             System.out.println("• Energía +15");
         } else {
+            // Derrota - Game Over
             System.out.println("Derrota...");
             System.out.println(nombreUma + " no logró ganar.");
             System.out.println(nombreUma + " no pudo cumplir su meta...");
@@ -603,12 +777,18 @@ public class tests {
             System.out.println("Guts: " + guts);
             System.out.println("Wit: " + wit);
             System.out.println("============================");
-        } System.exit(0);
+            System.exit(0);
+        }
 
         System.out.println("========================================\n");
     }
 
-    static void evento() {
+    /**
+     * Genera un evento aleatorio durante el turno.
+     * Los eventos ofrecen elecciones que afectan las stats, energía, mood o condiciones de la Uma.
+     * Hay 10 eventos diferentes con distintas opciones y consecuencias.
+     */
+    static void evento() throws InterruptedException {
         System.out.println("\n========================================");
         System.out.println("          EVENTO ALEATORIO");
         System.out.println("========================================");
@@ -616,223 +796,241 @@ public class tests {
         int opc = new Random().nextInt(1, 11);
         int accion = 0;
 
-        switch (opc) {
-            case 1:
-                System.out.println("Evento: A Grown-Up Present");
-                System.out.println("Te han regalado unos zapatos de tacón muy elegantes, pero no son para correr.");
-                System.out.println(nombreUma + " te pregunta qué debería hacer con ellos.");
-                System.out.println("1 - Úsalos para relajarte y salir de compras.");
-                System.out.println("2 - Estudia cómo están fabricados para mejorar tu técnica.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    energia += 20;
-                    mood += 20;
-                    System.out.println("Qué día tan relajante! Se siente renovada.");
-                } else {
-                    speed += 10;
-                    wit += 20;
-                    System.out.println("Ha aprendido mucho sobre equilibrio y postura!");
-                }
-                break;
-
-            case 2:
-                System.out.println("Evento: Dashing through the Snow");
-                System.out.println("¡Ha empezado a nevar fuertemente!");
-                System.out.println(nombreUma + " mira la nieve con emoción.");
-                System.out.println("1 - Vamos a correr sobre la nieve espesa!");
-                System.out.println("2 - Hace frío, mejor nos quedamos dentro con un chocolate.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    speed += 10;
-                    power += 5;
-                    System.out.println("El entrenamiento en la nieve fue duro, ¡pero efectivo!");
-                } else if (accion == 2) {
-                    energia += 30;
-                    System.out.println("El cuerpo ha entrado en calor y ha descansado.");
-                }
-                break;
-
-            case 3:
-                System.out.println("Evento: Everyone's " + nombreUma);
-                System.out.println("Un grupo de fans ha venido a animar durante el entrenamiento.");
-                System.out.println("1 - Enséñales tu velocidad máxima!");
-                System.out.println("2 - Demuestra tu fuerza y resistencia!");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    speed += 10;
-                    System.out.println("Los fans quedaron impresionados por su velocidad!");
-                } else if (accion == 2) {
-                    power += 10;
-                    guts += 5;
-                    System.out.println("Los fans aplauden su tenacidad!");
-                }
-                break;
-
-            case 4:
-                System.out.println("Evento: High Level Rival");
-                System.out.println("Te has encontrado con una rival muy fuerte en la pista.");
-                System.out.println("Parece que quiere desafiarte.");
-                System.out.println("1 - Intentar ganarle en un sprint largo.");
-                System.out.println("2 - Competir cuerpo a cuerpo.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    speed += 5;
-                    stamina += 5;
-                    System.out.println("Fue una carrera reñida, buen ejercicio cardiovascular.");
-                } else if (accion == 2) {
-                    power += 10;
-                    guts += 5;
-                    System.out.println("El choque de hombros fue intenso. ¡Más potencia!");
-                }
-                break;
-
-            case 5:
-                System.out.println("Evento: " + nombreUma + " Makes a Resolution");
-                System.out.println(nombreUma + " está pensando en sus objetivos para este año.");
-                System.out.println("1 - Centrarse en la táctica y la técnica.");
-                System.out.println("2 - Centrarse en el aguante y el coraje.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    speed += 5;
-                    wit += 5;
-                    System.out.println("Ha estudiado nuevas rutas de carrera.");
-                } else if (accion == 2) {
-                    stamina += 5;
-                    guts += 5;
-                    System.out.println("Siente el fuego en su interior.");
-                }
-                break;
-
-            case 6:
-                System.out.println("Evento: " + nombreUma + " Matures");
-                System.out.println("Tienes un rato libre antes de entrenar.");
-                System.out.println("1 - Leer libros de estrategia.");
-                System.out.println("2 - Correr una maratón ligera.)");
-                System.out.println("3 - Levantamiento de pesas.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    wit += 10;
-                    System.out.println("Su inteligencia en carrera ha mejorado.");
-                } else if (accion == 2) {
-                    stamina += 10;
-                    System.out.println("Sus pulmones están más fuertes.");
-                } else if (accion == 3) {
-                    power += 10;
-                    System.out.println("Sus músculos se sienten más potentes.");
-                }
-                break;
-
-            case 7:
-                System.out.println("Evento: " + nombreUma + " Perseveres");
-                System.out.println("El entrenamiento está siendo brutal hoy. " + nombreUma + " quiere parar.");
-                System.out.println("1 - ¡No te rindas! ¡Saca tu coraje!");
-                System.out.println("2 - ¡Empuja con fuerza bruta!");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    guts += 10;
-                    System.out.println("Ha superado sus límites mentales.");
-                } else if (accion == 2) {
-                    power += 10;
-                    System.out.println("Ha superado sus límites físicos.");
-                }
-                break;
-
-            case 8:
-                System.out.println("Evento: Bottomless Pit");
-                System.out.println(nombreUma + " tiene mucha hambre después de entrenar.");
-                System.out.println("1 - Comer una ensalada ligera.");
-                System.out.println("2 - Comer su postre favorito.");
-                System.out.println("3 - COMERSE TODO EL BUFFET.");
-                System.out.print("Elige una opción: ");
-                int random = new Random().nextInt(1, 3);
-                accion = print.nextInt();
-                if (accion == 1){
-                    energia += 10;
-                    System.out.println("Comida sana. Recupera un poco de energía.");
-                } else if (accion == 2){
-                    mood += 10;
-                    System.out.println("¡Delicioso! Se siente más feliz.");
-                } else if (accion == 3){
-                    if (random == 1){
-                        energia += 30;
-                        mood += 10;
-                        System.out.println("¡Increíble! Ha comido como una bestia y se siente genial.");
-                    } else {
-                        energia += 30;
-                        speed -= 5;
-                        practicePoor = true;
-                        power += 5;
-                        System.out.println("Oh no... ha comido demasiado. Le duele el estómago (Practice Poor).");
-                    }
-                }
-                break;
-
-            case 9:
-                System.out.println("Evento: New Year's Resolution");
-                System.out.println("Feliz año nuevo! ¿Cómo pasamos las vacaciones?");
-                System.out.println("1 - Descansar totalmente.");
-                System.out.println("2 - Entrenamiento ligero especial.");
-                System.out.print("Elige una opción: ");
-                accion = print.nextInt();
-                if (accion == 1) {
-                    energia += 30;
-                    System.out.println("Ha dormido muchísimo. Baterías recargadas.");
-                } else if (accion == 2) {
-                    wit += 5;
-                    speed += 5;
-                    stamina += 5;
-                    power += 5;
-                    guts += 5;
-                    System.out.println("Un poco de todo para empezar bien el año.");
-                }
-                break;
-
-            case 10:
-                System.out.println("Evento: " + nombreUma + "'s Gluttony Championship");
-                System.out.println("¡Un concurso de comer Ramen!");
-                System.out.println("1 - Intentar ganar (Riesgo medio).");
-                System.out.println("2 - Participar por diversión (Seguro).");
-                System.out.println("3 - IR A POR EL RÉCORD MUNDIAL!");
-                System.out.print("Elige una opción: ");
-                int random1 = new Random().nextInt(1, 101);
-                accion = print.nextInt();
-                if (accion == 1) {
-                    if (random1 <= 70) {
-                        energia += 40;
-                        power += 10;
-                        System.out.println("¡Victoria! Estaba delicioso.");
-                    } else {
+        // Try-catch para manejar entradas inválidas en eventos
+        try {
+            switch (opc) {
+                case 1:
+                    System.out.println("Evento: A Grown-Up Present");
+                    System.out.println("Te han regalado unos zapatos de tacón muy elegantes, pero no son para correr.");
+                    System.out.println(nombreUma + " te pregunta qué debería hacer con ellos.");
+                    Thread.sleep(2000); // Pausa para leer la situación
+                    System.out.println("1 - Úsalos para relajarte y salir de compras.");
+                    System.out.println("2 - Estudia cómo están fabricados para mejorar tu técnica.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
                         energia += 20;
-                        speed -= 5;
-                        practicePoor = true;
-                        System.out.println("Comió demasiado rápido... se marea.");
-                    }
-                } else if (accion == 2) {
-                    energia += 10;
-                    power += 5;
-                    System.out.println("Comió tranquila y disfrutó el caldo.");
-                } else if (accion == 3) {
-                    if (random1 <= 30) {
-                        energia += 100;
-                        power += 20;
-                        System.out.println("¡DIOS MÍO! ¡Es un agujero negro! Energía al máximo.");
+                        mood += 20;
+                        System.out.println("Qué día tan relajante! Se siente renovada.");
                     } else {
-                        energia += 200;
-                        speed -= 20;
-                        power += 20;
-                        practicePoor = true;
-                        System.out.println("Ha explotado. Literalmente no puede moverse. Ha ganado peso (Speed down).");
+                        speed += 10;
+                        wit += 20;
+                        System.out.println("Ha aprendido mucho sobre equilibrio y postura!");
                     }
-                }
-                break;
+                    break;
+
+                case 2:
+                    System.out.println("Evento: Dashing through the Snow");
+                    System.out.println("¡Ha empezado a nevar fuertemente!");
+                    System.out.println(nombreUma + " mira la nieve con emoción.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Vamos a correr sobre la nieve espesa!");
+                    System.out.println("2 - Hace frío, mejor nos quedamos dentro con un chocolate.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        speed += 10;
+                        power += 5;
+                        System.out.println("El entrenamiento en la nieve fue duro, ¡pero efectivo!");
+                    } else if (accion == 2) {
+                        energia += 30;
+                        System.out.println("El cuerpo ha entrado en calor y ha descansado.");
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Evento: Everyone's " + nombreUma);
+                    System.out.println("Un grupo de fans ha venido a animar durante el entrenamiento.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Enséñales tu velocidad máxima!");
+                    System.out.println("2 - Demuestra tu fuerza y resistencia!");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        speed += 10;
+                        System.out.println("Los fans quedaron impresionados por su velocidad!");
+                    } else if (accion == 2) {
+                        power += 10;
+                        guts += 5;
+                        System.out.println("Los fans aplauden su tenacidad!");
+                    }
+                    break;
+
+                case 4:
+                    System.out.println("Evento: High Level Rival");
+                    System.out.println("Te has encontrado con una rival muy fuerte en la pista.");
+                    System.out.println("Parece que quiere desafiarte.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Intentar ganarle en un sprint largo.");
+                    System.out.println("2 - Competir cuerpo a cuerpo.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        speed += 5;
+                        stamina += 5;
+                        System.out.println("Fue una carrera reñida, buen ejercicio cardiovascular.");
+                    } else if (accion == 2) {
+                        power += 10;
+                        guts += 5;
+                        System.out.println("El choque de hombros fue intenso. ¡Más potencia!");
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Evento: " + nombreUma + " Makes a Resolution");
+                    System.out.println(nombreUma + " está pensando en sus objetivos para este año.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Centrarse en la táctica y la técnica.");
+                    System.out.println("2 - Centrarse en el aguante y el coraje.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        speed += 5;
+                        wit += 5;
+                        System.out.println("Ha estudiado nuevas rutas de carrera.");
+                    } else if (accion == 2) {
+                        stamina += 5;
+                        guts += 5;
+                        System.out.println("Siente el fuego en su interior.");
+                    }
+                    break;
+
+                case 6:
+                    System.out.println("Evento: " + nombreUma + " Matures");
+                    System.out.println("Tienes un rato libre antes de entrenar.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Leer libros de estrategia.");
+                    System.out.println("2 - Correr una maratón ligera.");
+                    System.out.println("3 - Levantamiento de pesas.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        wit += 10;
+                        System.out.println("Su inteligencia en carrera ha mejorado.");
+                    } else if (accion == 2) {
+                        stamina += 10;
+                        System.out.println("Sus pulmones están más fuertes.");
+                    } else if (accion == 3) {
+                        power += 10;
+                        System.out.println("Sus músculos se sienten más potentes.");
+                    }
+                    break;
+
+                case 7:
+                    System.out.println("Evento: " + nombreUma + " Perseveres");
+                    System.out.println("El entrenamiento está siendo brutal hoy. " + nombreUma + " quiere parar.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - ¡No te rindas! ¡Saca tu coraje!");
+                    System.out.println("2 - ¡Empuja con fuerza bruta!");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        guts += 10;
+                        System.out.println("Ha superado sus límites mentales.");
+                    } else if (accion == 2) {
+                        power += 10;
+                        System.out.println("Ha superado sus límites físicos.");
+                    }
+                    break;
+
+                case 8:
+                    System.out.println("Evento: Bottomless Pit");
+                    System.out.println(nombreUma + " tiene mucha hambre después de entrenar.");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Comer una ensalada ligera.");
+                    System.out.println("2 - Comer su postre favorito.");
+                    System.out.println("3 - COMERSE TODO EL BUFFET.");
+                    System.out.print("Elige una opción: ");
+                    int random = new Random().nextInt(1, 3);
+                    accion = print.nextInt();
+                    if (accion == 1){
+                        energia += 10;
+                        System.out.println("Comida sana. Recupera un poco de energía.");
+                    } else if (accion == 2){
+                        mood += 10;
+                        System.out.println("¡Delicioso! Se siente más feliz.");
+                    } else if (accion == 3){
+                        if (random == 1){
+                            energia += 30;
+                            mood += 10;
+                            System.out.println("¡Increíble! Ha comido como una bestia y se siente genial.");
+                        } else {
+                            energia += 30;
+                            speed -= 5;
+                            practicePoor = true;
+                            power += 5;
+                            System.out.println("Oh no... ha comido demasiado. Le duele el estómago (Practice Poor).");
+                        }
+                    }
+                    break;
+
+                case 9:
+                    System.out.println("Evento: New Year's Resolution");
+                    System.out.println("Feliz año nuevo! ¿Cómo pasamos las vacaciones?");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Descansar totalmente.");
+                    System.out.println("2 - Entrenamiento ligero especial.");
+                    System.out.print("Elige una opción: ");
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        energia += 30;
+                        System.out.println("Ha dormido muchísimo. Baterías recargadas.");
+                    } else if (accion == 2) {
+                        wit += 5;
+                        speed += 5;
+                        stamina += 5;
+                        power += 5;
+                        guts += 5;
+                        System.out.println("Un poco de todo para empezar bien el año.");
+                    }
+                    break;
+
+                case 10:
+                    System.out.println("Evento: " + nombreUma + "'s Gluttony Championship");
+                    System.out.println("¡Un concurso de comer Ramen!");
+                    Thread.sleep(2000);
+                    System.out.println("1 - Intentar ganar (Riesgo medio).");
+                    System.out.println("2 - Participar por diversión (Seguro).");
+                    System.out.println("3 - IR A POR EL RÉCORD MUNDIAL!");
+                    System.out.print("Elige una opción: ");
+                    int random1 = new Random().nextInt(1, 101);
+                    accion = print.nextInt();
+                    if (accion == 1) {
+                        if (random1 <= 70) {
+                            energia += 40;
+                            power += 10;
+                            System.out.println("¡Victoria! Estaba delicioso.");
+                        } else {
+                            energia += 20;
+                            speed -= 5;
+                            practicePoor = true;
+                            System.out.println("Comió demasiado rápido... se marea.");
+                        }
+                    } else if (accion == 2) {
+                        energia += 10;
+                        power += 5;
+                        System.out.println("Comió tranquila y disfrutó el caldo.");
+                    } else if (accion == 3) {
+                        if (random1 <= 30) {
+                            energia += 100;
+                            power += 20;
+                            System.out.println("¡DIOS MÍO! ¡Es un agujero negro! Energía al máximo.");
+                        } else {
+                            energia += 200;
+                            speed -= 20;
+                            power += 20;
+                            practicePoor = true;
+                            System.out.println("Ha explotado. Literalmente no puede moverse. Ha ganado peso (Speed down).");
+                        }
+                    }
+                    break;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida en el evento. Se aplicará la opción por defecto.");
+            print.nextLine();
         }
+
         System.out.println("========================================\n");
+        Thread.sleep(1000); // Pausa al final del evento
     }
 }

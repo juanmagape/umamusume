@@ -2,6 +2,10 @@
 
 Este proyecto consiste en una simulación de estrategia y gestión desarrollada en Java, la cual recrea las mecánicas de entrenamiento de la franquicia *Uma Musume* a través de una interfaz de consola.
 
+## [Memoria](https://gmqualitytechnologysl365-my.sharepoint.com/:w:/g/personal/juanmagalan2007_digitechfp_com/IQCB-WUae1gNTLCI18_TpwVSAS-0j8ufctozLCyK6Xv5F5E?e=h2pQfd)  | [Presentación](https://docs.google.com/presentation/d/14-1uzZCAJuMZZX098AQdd2F9COtI1kIiewuj3duKhCU/edit?usp=sharing)
+
+Link a presentación
+
 ## Descripción del Proyecto
 
 El simulador es un juego de gestión de recursos y tiempo. El usuario asume el rol de entrenador y debe gestionar las estadísticas de un personaje ("Uma") a lo largo de un ciclo limitado de turnos. El objetivo principal es incrementar los atributos del personaje para superar una serie de carreras obligatorias, culminando en la *URA Finale*.

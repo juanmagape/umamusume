@@ -33,3 +33,4 @@ El ciclo de juego consta de **48 turnos**. En cada turno, el jugador debe selecc
 
 # Diagrama de flujo:
 
+![alt text](image.png)
